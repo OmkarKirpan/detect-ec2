@@ -1,6 +1,6 @@
 {
   "name": "detect-ec2",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Detect if running on AWS EC2 via IMDS (supports IMDSv1 and IMDSv2)",
   "main": "src/detect.js",
   "bin": {
@@ -23,7 +23,9 @@
     "detect",
     "imds",
     "metadata",
-    "instance"
+    "instance",
+    "environment",
+    "env"
   ],
   "author": "Onkar Kirpan <omkarkirpan@gmail.com>",
   "license": "MIT",

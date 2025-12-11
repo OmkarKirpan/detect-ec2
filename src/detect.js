@@ -177,4 +177,63 @@ async function detectEC2(options = {}) {
   return { isEC2: false };
 }
 
-module.exports = { detectEC2, tryIMDSv1, tryIMDSv2, getMetadata };
+/**
+ * Detect EC2 and set environment variables
+ * @param {Object} options - Options
+ * @param {number} [options.timeout=1000] - Timeout in milliseconds
+ * @param {string} [options.prefix='EC2_'] - Prefix for env var names
+ * @param {Object} [options.envNames={}] - Custom env var name overrides
+ * @param {boolean} [options.includeMetadata=true] - Include metadata in env vars
+ * @returns {Promise<{isEC2: boolean, imdsVersion?: string, metadata?: Object}>}
+ */
+async function setEnv(options = {}) {
+  const {
+    timeout = 1000,
+    prefix = 'EC2_',
+    envNames = {},
+    includeMetadata = true,
+  } = options;
+
+  const result = await detectEC2({ timeout, verbose: includeMetadata });
+
+  // Build env var names with prefix or custom overrides
+  const names = {
+    isEC2: envNames.isEC2 || `${prefix}IS_EC2`,
+    imdsVersion: envNames.imdsVersion || `${prefix}IMDS_VERSION`,
+    instanceId: envNames.instanceId || `${prefix}INSTANCE_ID`,
+    instanceType: envNames.instanceType || `${prefix}INSTANCE_TYPE`,
+    amiId: envNames.amiId || `${prefix}AMI_ID`,
+    localIpv4: envNames.localIpv4 || `${prefix}LOCAL_IPV4`,
+    publicIpv4: envNames.publicIpv4 || `${prefix}PUBLIC_IPV4`,
+  };
+
+  // Always set the detection result
+  process.env[names.isEC2] = result.isEC2 ? 'true' : 'false';
+
+  if (result.isEC2) {
+    process.env[names.imdsVersion] = result.imdsVersion;
+
+    // Set metadata fields if available
+    if (result.metadata) {
+      if (result.metadata['instance-id']) {
+        process.env[names.instanceId] = result.metadata['instance-id'];
+      }
+      if (result.metadata['instance-type']) {
+        process.env[names.instanceType] = result.metadata['instance-type'];
+      }
+      if (result.metadata['ami-id']) {
+        process.env[names.amiId] = result.metadata['ami-id'];
+      }
+      if (result.metadata['local-ipv4']) {
+        process.env[names.localIpv4] = result.metadata['local-ipv4'];
+      }
+      if (result.metadata['public-ipv4']) {
+        process.env[names.publicIpv4] = result.metadata['public-ipv4'];
+      }
+    }
+  }
+
+  return result;
+}
+
+module.exports = { detectEC2, tryIMDSv1, tryIMDSv2, getMetadata, setEnv };
