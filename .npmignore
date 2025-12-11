@@ -1,0 +1,7 @@
+.claude/
+.gitignore
+biome.json
+*.md
+!README.md
+*.tgz
+.DS_Store
