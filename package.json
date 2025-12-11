@@ -4,7 +4,7 @@
   "description": "Detect if running on AWS EC2 via IMDS (supports IMDSv1 and IMDSv2)",
   "main": "src/detect.js",
   "bin": {
-    "detect-ec2": "./bin/cli.js"
+    "detect-ec2": "bin/cli.js"
   },
   "files": [
     "bin/",
